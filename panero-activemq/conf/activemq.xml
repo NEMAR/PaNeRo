@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:amq="http://activemq.apache.org/schema/core"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://activemq.apache.org/schema/core
+                           http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations" value="file:${activemq.conf}/credentials.properties"/>
+    </bean>
+
+    <!-- Allows accessing the server log -->
+    <bean id="logQuery" class="io.fabric8.insight.log.log4j.Log4jLogQuery"
+          lazy-init="false" scope="singleton"
+          init-method="start" destroy-method="stop"/>
+
+    <amq:broker brokerName="panero" dataDirectory="${activemq.data}">
+
+        <amq:destinations>
+            <amq:queue physicalName="Queue.PANERO.1.INPUT_PLAIN"/>
+            <amq:queue physicalName="Queue.PANERO.1.INPUT_NORMALIZED"/>
+        </amq:destinations>
+
+        <amq:destinationPolicy>
+            <amq:policyMap>
+                <amq:policyEntries>
+                    <amq:policyEntry topic=">">
+                        <!-- Setting to to prevent slow topic consumers to block producers and affect other consumers
+                             by limiting the number of messages that are retained -->
+                        <amq:pendingMessageLimitStrategy>
+                            <amq:constantPendingMessageLimitStrategy limit="2000"/>
+                        </amq:pendingMessageLimitStrategy>
+                    </amq:policyEntry>
+                    <amq:policyEntry queue=">" reduceMemoryFootprint="true" optimizedDispatch="true">
+                        <amq:deadLetterStrategy>
+                            <amq:individualDeadLetterStrategy queuePrefix="DLQ." processExpired="false"/>
+                        </amq:deadLetterStrategy>
+                    </amq:policyEntry>
+                </amq:policyEntries>
+            </amq:policyMap>
+        </amq:destinationPolicy>
+
+        <amq:managementContext>
+            <amq:managementContext createConnector="false"/>
+        </amq:managementContext>
+
+        <amq:persistenceAdapter>
+            <amq:levelDB directory="${activemq.data}/leveldb"/>
+        </amq:persistenceAdapter>
+
+        <amq:systemUsage>
+            <amq:systemUsage sendFailIfNoSpace="true">
+                <amq:memoryUsage>
+                    <amq:memoryUsage percentOfJvmHeap="70"/>
+                </amq:memoryUsage>
+                <amq:storeUsage>
+                    <amq:storeUsage limit="20 gb"/>
+                </amq:storeUsage>
+                <amq:tempUsage>
+                    <amq:tempUsage limit="2 gb"/>
+                </amq:tempUsage>
+            </amq:systemUsage>
+        </amq:systemUsage>
+
+        <amq:sslContext>
+            <amq:sslContext keyStore="${activemq.conf}/broker.ks" keyStorePassword="password"
+                            trustStore="${activemq.conf}/broker.ts" trustStorePassword="password"/>
+        </amq:sslContext>
+
+        <amq:transportConnectors>
+            <!-- DDoS protection, limit concurrent connections to 1000 and frame size to 100MB -->
+            <amq:transportConnector name="openwire+https"
+                                    uri="https://0.0.0.0:51515?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <amq:transportConnector name="openwire+ssl"
+                                    uri="ssl://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <amq:transportConnector name="openwire"
+                                    uri="tcp://0.0.0.0:61617?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <amq:transportConnector name="stomp+ssl"
+                                    uri="stomp+ssl://0.0.0.0:61613?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <amq:transportConnector name="stomp"
+                                    uri="stomp://0.0.0.0:61614?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <amq:transportConnector name="mqtt+ssl"
+                                    uri="mqtt+ssl://0.0.0.0:1883?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <amq:transportConnector name="mqtt"
+                                    uri="mqtt://0.0.0.0:1884?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+        </amq:transportConnectors>
+
+        <amq:shutdownHooks>
+            <bean class="org.apache.activemq.hooks.SpringContextHook"/>
+        </amq:shutdownHooks>
+
+    </amq:broker>
+
+    <import resource="jetty.xml"/>
+
+</beans>

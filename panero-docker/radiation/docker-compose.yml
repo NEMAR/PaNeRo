@@ -1,0 +1,13 @@
+version: '2'
+services:
+  solar-radiation-import:
+    build:
+      context: .
+    container_name: radiation-import
+    network_mode: "host" # localhost refers to container host for all intents and purposes
+    command: "/usr/local/start.sh localhost:8080" #wait for panero-gateway to be available on container host
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "1"
+        max-size: "2m"

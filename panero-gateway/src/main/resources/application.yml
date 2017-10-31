@@ -1,0 +1,62 @@
+info:
+  name: @project.artifactId@
+  version: @project.version@
+
+panero:
+  tenant: ~
+  client-id: ~
+  gateway:
+    http:
+      connector: http
+      port: 8080
+    openwire:
+      connector: tcp # ssl
+      port: 61616
+      options: ~
+    stomp:
+      connector: stomp # stomp+ssl
+      port: 61613
+      options: ~
+    mqtt:
+      connector: mqtt # mqtt+ssl
+      port: 1883
+      options: ~
+    persistence-store: target/persistence
+  broker:
+    connector: ssl
+    options: ~
+    hostname: nemar.iaas.uni-stuttgart.de
+    port: 61616
+    username: system
+    password: NEMARPASSWORD
+  key-store: config/gateway.ks
+  key-store-password: PASSWORD
+  trust-store: config/gateway.ts
+  trust-store-password: PASSWORD
+
+spring:
+  activemq:
+    broker-url: vm://localhost
+  jmx:
+    enabled: true
+  jackson:
+    property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+    serialization:
+      indent_output: true
+  application:
+    name: ${info.name}
+
+server:
+  port: ${panero.gateway.http.port}
+
+endpoints:
+  enabled: false
+  info:
+    enabled: true
+  health:
+    enabled: true
+  metrics:
+    enabled: true
+  cors:
+    allowed-origins: '*'
+    allowed-methods: GET

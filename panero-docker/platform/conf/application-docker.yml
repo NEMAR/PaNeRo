@@ -1,0 +1,14 @@
+panero:
+  broker:
+    hostname: activemq
+  platform:
+    proxy:
+      type: DIRECT # HTTP
+      address: ~ # web-proxy.bbn.hpecorp.net
+      port: ~ # 8088
+
+spring:
+  influxdb:
+    url: http://influxdb:8086
+    username: NEMAR
+    password: PASSWORD

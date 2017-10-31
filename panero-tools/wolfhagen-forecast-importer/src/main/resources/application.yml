@@ -1,0 +1,24 @@
+info:
+  name: @project.artifactId@
+  version: @project.version@
+
+ftp:
+  connection:
+    hostname: ~
+    port: 21
+    username: ~
+    password: ~
+    interval: 300 # 5 minutes
+  filename-pattern: "*.csv"
+  remote-directory: "/"
+  delete-remote-files: True
+
+panero:
+  gateway:
+    hostname: localhost
+    port: 8080
+
+spring:
+  batch:
+    job:
+      enabled: false

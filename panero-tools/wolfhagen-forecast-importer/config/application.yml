@@ -1,0 +1,7 @@
+ftp:
+  connection:
+    hostname: 217.92.201.57
+    username: NeMar
+    password: NeMar_16!
+    interval: 300 # 5 minutes
+  remote-directory: .

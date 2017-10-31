@@ -1,0 +1,12 @@
+panero:
+  tenant: wolfhagen
+  gateway:
+    http.port: 8181
+    openwire:
+      port: 41414
+    stomp:
+      port: 41413
+    mqtt:
+      port: 1880
+  broker:
+    hostname: localhost

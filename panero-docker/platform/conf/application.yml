@@ -1,0 +1,22 @@
+panero:
+  analytics:
+    short-term:
+      data-sets:
+        - tenant: saarlouis
+          queries:
+            - SELECT mean(value) as "value" FROM "default"."weather.temperature" WHERE tenant = '${tenant}' AND time > now() - 2d GROUP BY time(15m) fill(null)
+            - SELECT value as "value" FROM "default"."weather.forecast.temperature" WHERE tenant = '${tenant}' AND time > now() AND time < now() + 4d GROUP BY timestamp
+        - tenant: wolfhagen
+          queries:
+            - SELECT mean(value) as "value" FROM "default"."weather.temperature" WHERE tenant = '${tenant}' AND time > now() - 2d GROUP BY time(15m) fill(null)
+            - SELECT value as "value" FROM "default"."weather.forecast.temperature" WHERE tenant = '${tenant}' AND time > now() AND time < now() + 4d GROUP BY timestamp
+        - tenant: wolfhagen
+          queries:
+            - SELECT value as "value" FROM "default"."residuallast.forecast" WHERE tenant = '${tenant}' AND time > now() AND time < now() + 1d GROUP BY forecast_file
+  integration:
+    weather:
+      cities:
+        - { id: 2806799, tenant: wolfhagen }
+        - { id: 2842632, tenant: saarlouis }
+        - { id: 2825297, tenant: default }
+        - { id: 2947444, tenant: default }

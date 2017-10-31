@@ -1,0 +1,28 @@
+panero:
+  tenant: default
+  client-id: 1
+  gateway:
+    http.port: 8080
+    openwire:
+      connector: tcp # ssl
+      port: 61616
+      options: ~
+    stomp:
+      connector: stomp # stomp+ssl
+      port: 61613
+      options: ~
+    mqtt:
+      connector: mqtt # mqtt+ssl
+      port: 1883
+      options: ~
+  broker:
+    connector: ssl # https
+    options: ~ # proxyHost=web-proxy.bbn.hpecorp.net&proxyPort=8088
+    hostname: nemar.iaas.uni-stuttgart.de
+    port: 61616 # 443
+    username: SYSTEM
+    password: PASSWORD
+  key-store: config/gateway.ks
+  key-store-password: PASSWORD
+  trust-store: config/gateway.ts
+  trust-store-password: PASSWORD

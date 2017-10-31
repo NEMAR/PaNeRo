@@ -1,0 +1,73 @@
+info:
+  name: @project.artifactId@
+  version: @project.version@
+
+panero:
+  analytics:
+    short-term:
+      interval: 3600 # 1 hour
+  platform:
+    port: 8080
+    proxy:
+      type: DIRECT # HTTP, SOCKS (java.net.Proxy.Type)
+      address: ~
+      port: ~
+  broker:
+    options: ~
+    connector: tcp
+    hostname: localhost
+    port: 61617
+    username: SYSTEM
+    password: MANAGER123
+  integration:
+    weather:
+      lang: de
+      units: metric
+      delay-current: 3600 # 1 hour
+      delay-forecast: 86400 # 24 hours
+      api_key: d190b4ffc58bb79dfce732f39bf9b232
+      cities: [ { id: 2825297, tenant: default } ]
+
+spring:
+  jmx:
+    enabled: false
+  activemq:
+    broker-url: ${panero.broker.connector}://${panero.broker.hostname}:${panero.broker.port}?${panero.broker.options}
+    pooled: false
+    inMemory: false
+    user: ${panero.broker.username}
+    password: ${panero.broker.password}
+    prefix: ${info.name}
+    queueprefetch: 100 # default 1000
+    queuebrowserprefetch: 50 # default 500
+    topicprefetch: 1000 # default 32766
+    durabletopicprefetch: 10 # default 100
+    optimizedurabletopicprefetch: 10
+  jms:
+    listener:
+      concurrency: 3
+      max-concurrency: 100
+  jackson:
+    serialization:
+      indent_output: true
+  influxdb:
+    url: http://${panero.broker.hostname}:8086
+    username: NEMAR
+    password: PANERO
+    database: panero
+    retention-policy: default
+
+server:
+  port: ${panero.platform.port}
+
+endpoints:
+  enabled: false
+  info:
+    enabled: true
+  health:
+    enabled: true
+  metrics:
+    enabled: true
+  cors:
+    allowed-origins: '*'
+    allowed-methods: GET

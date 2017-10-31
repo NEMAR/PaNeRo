@@ -1,0 +1,90 @@
+version: '2'
+services:
+  activemq:
+    image: rmohr/activemq:5.13.2
+    container_name: activemq
+    ports:
+      - "8161:8161"   # web
+      - "61617:61617" # openwire
+      - "61616:61616" # openwire+ssl
+      - "51515:51515" # openwire+https
+      - "61614:61614" # stomp
+      - "61613:61613" # stomp+ssl
+      - "1884:1884"   # mqtt
+      - "1883:1883"   # mqtt+ssl
+    volumes:
+      - /var/docker/activemq:/opt/activemq/data
+      - ../panero-activemq/bin/env:/opt/activemq/bin/env
+      - ../panero-activemq/conf/activemq.xml:/opt/activemq/conf/activemq.xml
+      - ../panero-activemq/conf/broker.ks:/opt/activemq/conf/broker.ks
+      - ../panero-activemq/conf/broker.ts:/opt/activemq/conf/broker.ts
+      - ../panero-activemq/conf/credentials.properties:/opt/activemq/conf/credentials.properties
+      - ../panero-activemq/conf/groups.properties:/opt/activemq/conf/groups.properties
+      - ../panero-activemq/conf/users.properties:/opt/activemq/conf/users.properties
+  jobmanager:
+    image: panero/flink
+    container_name: flink-jobmanager
+    ports:
+      - "2222:22"
+      - "48080:8080"
+      - "48081:8081"
+    expose:
+      - "22"
+      - "6123"
+    command: "/usr/local/flink/bin/config-flink.sh jobmanager"
+  taskmanager:
+    image: panero/flink
+    ports:
+      - "22"
+    expose:
+      - "6121"
+      - "6122"
+    depends_on:
+      - jobmanager
+    links:
+      - jobmanager:jobmanager
+  influxdb:
+    image: tutum/influxdb:0.12
+    container_name: influxdb
+    ports:
+      - 8083:8083 # Web
+      - 8086:8086 # TCP
+    volumes:
+      - /var/docker/influxdb/data:/data
+    environment:
+      - PRE_CREATE_DB=panero
+      - ADMIN_USER=nemar
+      - INFLUXDB_INIT_PWD=2016
+  grafana:
+    image: grafana/grafana:3.0.4
+    container_name: grafana
+    ports:
+      - 3000:3000 # Web
+    volumes:
+      - /var/docker/grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=NEMAR
+      - GF_SECURITY_ADMIN_PASSWORD=PANERO
+      - GF_SECURITY_DISABLE_GRAVATAR=true
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - influxdb
+    links:
+      - influxdb:influxdb
+  panero:
+    image: panero/platform
+    container_name: panero
+    ports:
+      - 8080:8080
+    depends_on:
+      - activemq
+      - influxdb
+    links:
+      - activemq:activemq
+      - influxdb:influxdb
+    command: "/usr/local/start.sh influxdb:8086 activemq:61617"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "1"
+        max-size: "5m"

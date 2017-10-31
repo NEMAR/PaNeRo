@@ -1,0 +1,122 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0",
+    "title": "PaNeRo Gateway API",
+    "license": {
+      "name": "MIT License"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "writing-data",
+      "description": "Writing Data"
+    }
+  ],
+  "paths": {
+    "/write": {
+      "post": {
+        "tags": [
+          "writing-data"
+        ],
+        "summary": "Write data",
+        "operationId": "writeDataUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "measurements",
+            "description": "The measurements to write",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Measurements"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "NameValuePair«string»": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "Measurement": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "precision": {
+          "type": "string",
+          "enum": [
+            "NANOSECONDS",
+            "MICROSECONDS",
+            "MILLISECONDS",
+            "SECONDS",
+            "MINUTES",
+            "HOURS",
+            "DAYS"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NameValuePair«string»"
+          }
+        },
+        "time": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "value": {
+          "type": "number",
+          "format": "double"
+        },
+        "value_metadata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NameValuePair«object»"
+          }
+        }
+      }
+    },
+    "Measurements": {
+      "properties": {
+        "measurements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Measurement"
+          }
+        }
+      }
+    },
+    "NameValuePair«object»": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

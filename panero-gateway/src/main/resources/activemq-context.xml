@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:amq="http://activemq.apache.org/schema/core"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://activemq.apache.org/schema/core
+                           http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <amq:broker useJmx="${spring.jmx.enabled}"
+                brokerId="${panero.tenant}-${panero.client-id}"
+                brokerName="panero-gateway-${panero.tenant}-${panero.client-id}"
+                networkConnectorStartAsync="true">
+
+        <amq:destinationPolicy>
+            <amq:policyMap>
+                <amq:policyEntries>
+                    <amq:policyEntry queue=">" reduceMemoryFootprint="true" optimizedDispatch="true">
+                        <amq:deadLetterStrategy>
+                            <amq:sharedDeadLetterStrategy processExpired="false" expiration="900000"/>
+                        </amq:deadLetterStrategy>
+                    </amq:policyEntry>
+                </amq:policyEntries>
+            </amq:policyMap>
+        </amq:destinationPolicy>
+
+        <amq:sslContext>
+            <amq:sslContext keyStore="${panero.key-store}"
+                            keyStorePassword="${panero.key-store-password}"
+                            trustStore="${panero.trust-store}"
+                            trustStorePassword="${panero.trust-store-password}"/>
+        </amq:sslContext>
+
+        <!-- Embedded Broker -->
+        <amq:transportConnectors>
+            <amq:transportConnector name="openwire"
+                                    uri="${panero.gateway.openwire.connector}://0.0.0.0:${panero.gateway.openwire.port}?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&amp;${panero.gateway.openwire.options}"/>
+            <amq:transportConnector name="stomp"
+                                    uri="${panero.gateway.stomp.connector}://0.0.0.0:${panero.gateway.stomp.port}?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&amp;${panero.gateway.stomp.options}"/>
+            <amq:transportConnector name="mqtt"
+                                    uri="${panero.gateway.mqtt.connector}://0.0.0.0:${panero.gateway.mqtt.port}?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&amp;${panero.gateway.mqtt.options}"/>
+        </amq:transportConnectors>
+
+        <!-- Remote Broker -->
+        <amq:networkConnectors>
+            <amq:networkConnector name="${panero.tenant}-${panero.client-id}"
+                                  userName="${panero.broker.username}" password="${panero.broker.password}"
+                                  uri="static:(${panero.broker.connector}://${panero.broker.hostname}:${panero.broker.port}?${panero.broker.options})"
+                                  duplex="true" dynamicOnly="true" networkTTL="2"
+                                  decreaseNetworkConsumerPriority="true">
+            </amq:networkConnector>
+        </amq:networkConnectors>
+
+        <amq:persistenceAdapter>
+            <amq:levelDB directory="${panero.gateway.persistence-store}"/>
+        </amq:persistenceAdapter>
+
+        <amq:systemUsage>
+            <amq:systemUsage sendFailIfNoSpace="true">
+                <amq:memoryUsage>
+                    <amq:memoryUsage percentOfJvmHeap="70"/>
+                </amq:memoryUsage>
+                <amq:storeUsage>
+                    <amq:storeUsage limit="30 gb"/>
+                </amq:storeUsage>
+                <amq:tempUsage>
+                    <amq:tempUsage limit="2 gb"/>
+                </amq:tempUsage>
+            </amq:systemUsage>
+        </amq:systemUsage>
+
+        <amq:shutdownHooks>
+            <bean class="org.apache.activemq.hooks.SpringContextHook"/>
+        </amq:shutdownHooks>
+
+    </amq:broker>
+
+</beans>

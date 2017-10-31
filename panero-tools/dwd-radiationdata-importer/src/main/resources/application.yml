@@ -1,0 +1,22 @@
+info:
+  name: @project.artifactId@
+  version: @project.version@
+
+ftp:
+  connection:
+    # ftp://ftp-cdc.dwd.de/pub/CDC/ for climate data,
+    hostname: ftp-cdc.dwd.de
+    username: anonymous
+    password: anonymous!!
+    port: 21
+    interval: 600 # 10 minutes, hourly upload, and we don't want to miss too much, I figure
+  filename-pattern: "*.zip"
+  # radiation data is recorded in a grid format and subdivided by radiation type
+  remote-directory: "pub/CDC/observations_germany/climate/hourly/solar"
+  local-directory: "target/transfers"
+  delete-remote-files: False
+
+panero:
+  gateway:
+    hostname: localhost
+    port: 8080

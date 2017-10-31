@@ -1,0 +1,56 @@
+{
+  "measurements": [
+    {
+      "name": "kwh",
+      "precision": "SECONDS",
+      "tags": [
+        {
+          "name": "house_id",
+          "value": "0"
+        },
+        {
+          "name": "household_id",
+          "value": "1"
+        },
+        {
+          "name": "plug_id",
+          "value": "11"
+        }
+      ],
+      "time": 1377986402,
+      "value": 2.25,
+      "value_metadata": [
+        {
+          "name": "property",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "name": "kwh",
+      "precision": "SECONDS",
+      "tags": [
+        {
+          "name": "house_id",
+          "value": "0"
+        },
+        {
+          "name": "household_id",
+          "value": "1"
+        },
+        {
+          "name": "plug_id",
+          "value": "6"
+        }
+      ],
+      "time": 1377986402,
+      "value": 3.216,
+      "value_metadata": [
+        {
+          "name": "property",
+          "value": 0
+        }
+      ]
+    }
+  ]
+}

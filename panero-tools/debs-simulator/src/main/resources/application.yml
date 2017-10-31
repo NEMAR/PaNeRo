@@ -1,0 +1,13 @@
+info:
+  name: @project.artifactId@
+  version: @project.version@
+
+debs:
+  file: ~
+  compressed: true
+  interval: 1000
+
+panero:
+  gateway:
+    hostname: localhost
+    port: 8080
